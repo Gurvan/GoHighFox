@@ -5,7 +5,7 @@ from envs import GoHighEnv
 import atexit
 import platform
 
-checkpoint = torch.load(os.path.join("checkpoints", "agent.ckpt"))
+checkpoint = torch.load(os.path.join("checkpoints", "agent.ckpt"), map_location=torch.device('cpu'))
 
 net = checkpoint["model"]
 
