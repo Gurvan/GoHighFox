@@ -35,7 +35,7 @@ options = dict(
 if __name__ == "__main__":
     env = GoHighEnvVec(args.num_workers, args.total_steps, options)
 
-    net = Actor(env.observation_space.n, env.action_space.n)
+    net = RecurrentActor(env.observation_space.n, env.action_space.n)
     optimizer = optim.Adam(net.parameters(), lr=args.lr)
 
     train(args, net, optimizer, env)

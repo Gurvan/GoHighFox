@@ -106,3 +106,4 @@ venv.bak/
 # Custom
 checkpoints/*
 !checkpoints/agent.ckpt
+_test.py
