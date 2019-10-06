@@ -2,7 +2,7 @@ import argparse
 import torch
 import torch.optim as optim
 
-from models import Actor
+from models import RecurrentActor
 from envs import GoHighEnvVec
 from train import train
 
