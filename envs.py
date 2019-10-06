@@ -39,6 +39,10 @@ class GoHighEnv(BaseEnv):
 
     def compute_reward(self):
         r = 0.0
+        controller = self.obs.players[self.pid].controller
+        for c in [controller.button_A, controller.button_Y, controller.stick_MAIN.x]:
+            r -= abs(c) / 100.0
+
         if self.prev_obs is not None:
             # This is necesarry because the character might be dying during multiple frames
             if not isDying(self.prev_obs.players[self.pid]) and \
