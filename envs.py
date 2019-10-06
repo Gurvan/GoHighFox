@@ -40,16 +40,20 @@ class GoHighEnv(BaseEnv):
 
     def compute_reward(self):
         r = 0.0
+        controller = self.obs.players[self.pid].controller:
+        for c in [controller.buttonA, controller.button_Y, controller.stick_MAIN.x]:
+            r-= abs(c) / 100.0
+    
         if self.prev_obs is not None:
             # This is necesarry because the character might be dying during multiple frames
             if not isDying(self.prev_obs.players[self.pid]) and \
                isDying(self.obs.players[self.pid]):
                 r -= 1.0
             
-        #     # We give a reward of -0.01 for every percent taken. The max() ensures that not reward is given when a character dies
-        #     r -= 0.01 * max(0, self.obs.players[self.pid].percent - self.prev_obs.players[self.pid].percent)
+            # We give a reward of -0.01 for every percent taken. The max() ensures that not reward is given when a character dies
+            r -= 0.01 * max(0, self.obs.players[self.pid].percent - self.prev_obs.players[self.pid].percent)
 
-        r += self.obs.players[0].y / 50 / 60
+        r += (self.obs.players[0].y - self.obs.players[1].y) / 50 / 60
         return r
 
     def step(self, action):
@@ -101,13 +105,13 @@ class MinimalEmbedPlayer():
 class MinimalEmbedGame():
     def __init__(self):
         self.embed_player = MinimalEmbedPlayer()
-        self.n = self.embed_player.n
+        self.n = 2 * self.embed_player.n
 
     def __call__(self, game_state):
         player0 = self.embed_player(game_state.players[0])
-        # player1 = self.embed_player(game_state.players[1])
+        player1 = self.embed_player(game_state.players[1])
 
-        return player0  # + player1  # concatenates lists
+        return player0  + player1  # concatenates lists
 
 
 import multiprocessing

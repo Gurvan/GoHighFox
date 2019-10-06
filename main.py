@@ -25,10 +25,10 @@ args = parser.parse_args()
 options = dict(
     render=False,
     player1='ai',
-    player2='human',
+    player2='cpu',
     char1='fox',
-    char2='falco',
-    cpu2=1,
+    char2='ganon',
+    cpu2=9,
     stage='battlefield',
 )
 
