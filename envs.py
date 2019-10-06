@@ -68,7 +68,7 @@ class GoHighEnv(BaseEnv):
 import numpy as np
 class MinimalEmbedPlayer():
     def __init__(self):
-        self.projection = np.load("projection.txt")
+        self.projection = np.loadtxt("projection.txt")
         self.n = 4 + min(self.projection.shape)
 
     def __call__(self, player_state):
@@ -77,7 +77,7 @@ class MinimalEmbedPlayer():
         action_state = np.dot(oneHot(player_state.action_state, numActions), self.projection)
         x = player_state.x/10.0
         y = player_state.y/10.0
-        jumps_used = bool(player_state.jumps_used)
+        jump_used = bool(player_state.jumps_used)
         # invulnerable = 1.0 if player_state.invulnerable else 0
         # hitlag_frames_left = player_state.hitlag_frames_left/10.0
         # hitstun_frames_left = player_state.hitstun_frames_left/10.0
@@ -87,7 +87,7 @@ class MinimalEmbedPlayer():
         return [
                 # percent,
                 # facing,
-                action_space,
+                *action_state,
                 x, y,
                 jump_used,
                 # invulnerable,
