@@ -32,12 +32,15 @@ options = dict(
     stage='battlefield',
 )
 
+args.cuda = torch.cuda.is_available() and not args.no_cuda
 
 if __name__ == "__main__":
     env = GoHighEnvVec(args.num_workers, args.total_steps, options)
     atexit.register(env.close)
 
     net = RecurrentActor(env.observation_space.n, env.action_space.n)
+    if args.cuda: net = net.cuda()
+
     optimizer = optim.Adam(net.parameters(), lr=args.lr)
 
     train(args, net, optimizer, env)
