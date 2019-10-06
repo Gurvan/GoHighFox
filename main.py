@@ -1,4 +1,5 @@
 import argparse
+import atexit
 import torch
 import torch.optim as optim
 
@@ -34,6 +35,7 @@ options = dict(
 
 if __name__ == "__main__":
     env = GoHighEnvVec(args.num_workers, args.total_steps, options)
+    atexit.register(env.close)
 
     net = RecurrentActor(env.observation_space.n, env.action_space.n)
     optimizer = optim.Adam(net.parameters(), lr=args.lr)
