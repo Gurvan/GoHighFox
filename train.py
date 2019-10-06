@@ -16,6 +16,7 @@ def train(params, net, optimizer, env):
         steps, obs = gather_rollout(params, net, env, obs)
         total_steps += params.num_workers * len(steps)
         final_obs = torch.tensor(obs)
+        if params.cuda: final_obs = final_obs.cuda()
         _, final_values = net(final_obs)
         steps.append((None, None, None, final_values))
         # print("Processing rollouts")
@@ -38,6 +39,7 @@ def gather_rollout(params, net, env, obs):
     t = time.time()
     for _ in range(params.rollout_steps):
         obs = torch.tensor(obs)
+        if params.cuda: obs = obs.cuda()
         logps, values = net(obs)
         actions = Categorical(logits=logps).sample()
 
@@ -47,6 +49,7 @@ def gather_rollout(params, net, env, obs):
             ep_rewards[i] += rewards[i]
         
         rewards = torch.tensor(rewards).float().unsqueeze(1)
+        if params.cuda: rewards = rewards.cuda()
         steps.append((rewards, actions, logps, values))
 
     print(round(time.time() - t, 3), round(mean(ep_rewards), 3), round(stdev(ep_rewards), 3))
@@ -59,6 +62,7 @@ def process_rollout(params, steps):
     returns = last_values.data
 
     advantages = torch.zeros(params.num_workers, 1)
+    if params.cuda: advantages = advantages.cuda()
 
     out = [None] * (len(steps) - 1)
 

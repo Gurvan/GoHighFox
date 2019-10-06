@@ -31,6 +31,7 @@ options = dict(
     stage='battlefield',
 )
 
+args.cuda = torch.cuda.is_available() and not args.no_cuda
 
 if __name__ == "__main__":
     env = GoHighEnvVec(args.num_workers, args.total_steps, options)
