@@ -30,8 +30,6 @@ def train(params, net, optimizer, env):
             n_save += 250000
 
 
-    env.close()
-
 
 def gather_rollout(params, net, env, obs):
     steps = []
@@ -92,6 +90,7 @@ def update_network(params, net, optimizer, actions, logps, values, returns, adva
 
     loss = policy_loss + value_loss * params.value_coeff + entropy_loss * params.entropy_coeff
     loss.backward()
+    net.h = None
 
     nn.utils.clip_grad_norm_(net.parameters(), params.grad_norm_limit)
     optimizer.step()

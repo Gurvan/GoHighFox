@@ -15,6 +15,30 @@ class Actor(nn.Module):
         logp = torch.log_softmax(self.policy(x), -1)
         return logp, val
 
+class RecurrentActor(nn.Module):
+    def __init__(self, obs_dim, action_dim, hidden_dim = 128):
+        super(RecurrentActor, self).__init__()
+        self.fc = nn.Linear(obs_dim, hidden_dim)
+        self.recurrent = nn.GRUCell(hidden_dim, hidden_dim)
+        self.value = ResNet(hidden_dim, 1, 2, output_dim=1)
+        self.policy = nn.Linear(hidden_dim, action_dim)
+
+        self.h = None
+
+    def forward(self, x):
+        no_batch = len(x.shape) == 1
+        x = self.fc(x)
+        if no_batch:
+            x = x.view(1, -1)
+        self.h = self.recurrent(x, self.h)
+        x, val = self.value(self.h, return_features=True)
+        logp = torch.log_softmax(self.policy(x), -1)
+        if no_batch:
+            logp = logp.squeeze(0)
+            val = val.squeeze(0)
+        return logp, val
+
+
 
 class ResidualBlock(nn.Module):
     """Following the structure of the one implemented in

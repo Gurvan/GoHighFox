@@ -1,8 +1,9 @@
 import argparse
+import atexit
 import torch
 import torch.optim as optim
 
-from models import Actor
+from models import RecurrentActor
 from envs import GoHighEnvVec
 from train import train
 
@@ -35,9 +36,11 @@ args.cuda = torch.cuda.is_available() and not args.no_cuda
 
 if __name__ == "__main__":
     env = GoHighEnvVec(args.num_workers, args.total_steps, options)
+    atexit.register(env.close)
 
-    net = Actor(env.observation_space.n, env.action_space.n)
+    net = RecurrentActor(env.observation_space.n, env.action_space.n)
     if args.cuda: net = net.cuda()
+
     optimizer = optim.Adam(net.parameters(), lr=args.lr)
 
     train(args, net, optimizer, env)
