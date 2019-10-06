@@ -8,6 +8,7 @@ from envs import GoHighEnvVec
 from train import train
 
 parser = argparse.ArgumentParser(description='A2C (Advantage Actor-Critic)')
+parser.add_argument('--model', type=str, help="load checkpoint model")
 parser.add_argument('--no-cuda', action='store_true', help='use to disable available CUDA')
 parser.add_argument('--num-workers', type=int, default=4, help='number of parallel workers')
 parser.add_argument('--rollout-steps', type=int, default=600, help='steps per rollout')
@@ -25,10 +26,10 @@ args = parser.parse_args()
 options = dict(
     render=False,
     player1='ai',
-    player2='human',
+    player2='cpu',
     char1='fox',
-    char2='falco',
-    cpu2=1,
+    char2='ganon',
+    cpu2=9,
     stage='battlefield',
 )
 
@@ -38,7 +39,11 @@ if __name__ == "__main__":
     env = GoHighEnvVec(args.num_workers, args.total_steps, options)
     atexit.register(env.close)
 
-    net = RecurrentActor(env.observation_space.n, env.action_space.n)
+    if args.model:
+        checkpoint = torch.load(args.model)
+        net = checkpoint["model"]
+    else:
+        net = RecurrentActor(env.observation_space.n, env.action_space.n)
     if args.cuda: net = net.cuda()
 
     optimizer = optim.Adam(net.parameters(), lr=args.lr)
