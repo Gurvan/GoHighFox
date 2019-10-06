@@ -1,4 +1,5 @@
 from ssbm_gym.ssbm_env import BaseEnv, isDying
+from ssbm_gym.embed import oneHot, numActions
 from copy import deepcopy
 
 def make_env(frame_limit, options):
@@ -64,16 +65,19 @@ class GoHighEnv(BaseEnv):
         return self.embed_obs(self.obs), reward, done, infos
 
 
-
+import numpy as np
 class MinimalEmbedPlayer():
     def __init__(self):
-        self.n = 3
+        self.projection = np.load("projection.txt")
+        self.n = 4 + min(self.projection.shape)
 
     def __call__(self, player_state):
         # percent = player_state.percent/100.0
         # facing = player_state.facing
+        action_state = np.dot(oneHot(player_state.action_state, numActions), self.projection)
         x = player_state.x/10.0
         y = player_state.y/10.0
+        jumps_used = bool(player_state.jumps_used)
         # invulnerable = 1.0 if player_state.invulnerable else 0
         # hitlag_frames_left = player_state.hitlag_frames_left/10.0
         # hitstun_frames_left = player_state.hitstun_frames_left/10.0
@@ -83,7 +87,9 @@ class MinimalEmbedPlayer():
         return [
                 # percent,
                 # facing,
+                action_space,
                 x, y,
+                jump_used,
                 # invulnerable,
                 # hitlag_frames_left,
                 # hitstun_frames_left,
