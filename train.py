@@ -43,7 +43,7 @@ def gather_rollout(params, net, env, obs):
         logps, values = net(obs)
         actions = Categorical(logits=logps).sample()
 
-        obs, rewards, dones, _ = env.step(actions.numpy())
+        obs, rewards, dones, _ = env.step(actions.cpu().numpy())
 
         for i, done in enumerate(dones):
             ep_rewards[i] += rewards[i]

@@ -37,6 +37,7 @@ if __name__ == "__main__":
     env = GoHighEnvVec(args.num_workers, args.total_steps, options)
 
     net = Actor(env.observation_space.n, env.action_space.n)
+    if args.cuda: net = net.cuda()
     optimizer = optim.Adam(net.parameters(), lr=args.lr)
 
     train(args, net, optimizer, env)
