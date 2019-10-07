@@ -42,14 +42,14 @@ class GoHighEnv(BaseEnv):
         r = 0.0
         controller = self.obs.players[self.pid].controller
         for c in [controller.button_A, controller.button_Y, controller.stick_MAIN.x]:
-            r-= abs(c) / 200.0
-    
+            r-= abs(c) / 1000.0
+
         if self.prev_obs is not None:
             # This is necesarry because the character might be dying during multiple frames
             if not isDying(self.prev_obs.players[self.pid]) and \
                isDying(self.obs.players[self.pid]):
                 r -= (1 - aggr) * 1.0
-            
+
             # We give a reward of -0.01 for every percent taken. The max() ensures that not reward is given when a character dies
             r -= (1 - aggr) * 0.01 * max(0, self.obs.players[self.pid].percent - self.prev_obs.players[self.pid].percent)
 
@@ -59,16 +59,16 @@ class GoHighEnv(BaseEnv):
 
             r += aggr *  0.01 * max(0, self.obs.players[1-self.pid].percent - self.prev_obs.players[1-self.pid].percent)
 
-
-        r += 0.1 * (self.obs.players[0].y - self.obs.players[1].y) / 50 / 60
+        r += 0.1 * (self.obs.players[self.pid].y - self.obs.players[1-self.pid].y) / 50 / 60
         return r
 
-    def step(self, action, aggr=0.5):
+    def step(self, action):
         if self.obs is not None:
             self.prev_obs = deepcopy(self.obs)
-        
-        obs = self.api.step([self.action_space.from_index(action)])
+
+        obs = self.api.step([self.action_space.from_index(action[0])])
         self.obs = obs
+        aggr = action[1]
         reward = self.compute_reward(aggr)
         done = self.is_terminal()
         infos = dict({'frame': self.obs.frame})

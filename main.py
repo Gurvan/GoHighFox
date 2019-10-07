@@ -28,9 +28,10 @@ options = dict(
     player1='ai',
     player2='cpu',
     char1='fox',
-    char2='ganon',
-    cpu2=9,
+    char2='falco',
+    cpu2=3,
     stage='battlefield',
+    speed=0,
 )
 
 args.cuda = torch.cuda.is_available() and not args.no_cuda
@@ -43,7 +44,7 @@ if __name__ == "__main__":
         checkpoint = torch.load(args.model)
         net = checkpoint["model"]
     else:
-        net = RecurrentActor(env.observation_space.n, env.action_space.n)
+        net = RecurrentActor(env.observation_space.n, env.action_space.n, 512)
     if args.cuda: net = net.cuda()
 
     optimizer = optim.Adam(net.parameters(), lr=args.lr)
