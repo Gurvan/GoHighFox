@@ -3,6 +3,7 @@ import torch.nn as nn
 from torch.distributions import Categorical
 from statistics import mean, stdev
 import time
+import random
 
 def train(params, net, optimizer, env):
     print("Resetting envs")
@@ -35,13 +36,15 @@ def gather_rollout(params, net, env, obs):
     steps = []
     ep_rewards = [0.] * params.num_workers
     t = time.time()
+    aggressivity = random.random()
     for _ in range(params.rollout_steps):
+        obs[-1] = aggressivity
         obs = torch.tensor(obs)
         if params.cuda: obs = obs.cuda()
         logps, values = net(obs)
         actions = Categorical(logits=logps).sample()
 
-        obs, rewards, dones, _ = env.step(actions.cpu().numpy())
+        obs, rewards, dones, _ = env.step(actions.cpu().numpy(), aggressivity)
 
         for i, done in enumerate(dones):
             ep_rewards[i] += rewards[i]
