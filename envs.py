@@ -40,8 +40,8 @@ class GoHighEnv(BaseEnv):
 
     def compute_reward(self):
         r = 0.0
-        controller = self.obs.players[self.pid].controller:
-        for c in [controller.buttonA, controller.button_Y, controller.stick_MAIN.x]:
+        controller = self.obs.players[self.pid].controller
+        for c in [controller.button_A, controller.button_Y, controller.stick_MAIN.x]:
             r-= abs(c) / 100.0
     
         if self.prev_obs is not None:
@@ -52,6 +52,13 @@ class GoHighEnv(BaseEnv):
             
             # We give a reward of -0.01 for every percent taken. The max() ensures that not reward is given when a character dies
             r -= 0.01 * max(0, self.obs.players[self.pid].percent - self.prev_obs.players[self.pid].percent)
+
+            if not isDying(self.prev_obs.players[1-self.pid]) and \
+               isDying(self.obs.players[1-self.pid]):
+                r += 1.0
+
+            r += 0.01 * max(0, self.obs.players[1-self.pid].percent - self.prev_obs.players[1-self.pid].percent)
+
 
         r += (self.obs.players[0].y - self.obs.players[1].y) / 50 / 60
         return r
